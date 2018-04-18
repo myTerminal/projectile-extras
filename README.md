@@ -31,3 +31,7 @@ Prompts for a text and lists all files in the current project containing it.
  
  - projectile-find-all-references  
 Lists all files in the current project containing marked text.
+
+## Dependencies
+
+* [projectile](https://github.com/bbatsov/projectile)
