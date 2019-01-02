@@ -80,6 +80,7 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                                                  arg)))
 
 (defun projectile-extras--search-string-in-project (prompt-text text-to-search &optional arg)
+  "Searches for the specified text in project files and displays result with the specified label."
   (let* ((directory (if arg
                         (file-name-as-directory (read-directory-name "Find in directory: "))
                       (projectile-project-root)))
@@ -111,11 +112,13 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                                                                 ,text-to-search)))))
 
 (defun projectile-extras--move-to-word-in-result-item (result-item target-word)
+  "Moves the cursor to the specified word in file represented by the specified result item."
   (let ((file (car (split-string result-item
                                  " => line ")))
         (line-number (string-to-number (cadr (split-string result-item
                                                            " => line ")))))
-    (find-file (expand-file-name file (projectile-project-root)))
+    (find-file (expand-file-name file
+                                 (projectile-project-root)))
     (beginning-of-buffer)
     (forward-line (1- line-number))
     (search-forward target-word)
