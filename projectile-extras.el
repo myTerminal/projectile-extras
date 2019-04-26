@@ -1,4 +1,4 @@
-;;; projectile-extras.el --- A few extra functions for projectile -*- lexical-binding: t; coding: utf-8; -*-
+;;; projectile-extras.el --- A few extra functions for projectile -*- lexical-binding: t; -*-
 
 ;; This file is not part of Emacs
 
