@@ -87,45 +87,42 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                       (projectile-project-root)))
          (files-to-search (projectile-files-with-string text-to-search
                                                         directory)))
-    (projectile-completing-read
-     prompt-text
-     (seq-reduce #'append
-                 (mapcar (lambda (file)
-                           (with-temp-buffer
-                             (insert-file-contents file)
-                             (let ((lines (split-string (buffer-string)
-                                                        "\n")))
-                               (cl-remove-if nil
-                                             (mapcar (lambda (line)
-                                                       (let ((present-in-linep (string-match-p (regexp-quote text-to-search)
-                                                                                               line)))
-                                                         (cond (present-in-linep (concat (cadr (split-string file
-                                                                                                             (projectile-project-root)))
-                                                                                         " => line "
-                                                                                         (number-to-string (1+ (cl-position line
-                                                                                                                            lines)))))
-                                                               (t nil))))
-                                                     lines)))))
-                         files-to-search)
-                 nil)
-     :action `(lambda (item)
-                (projectile-extras--move-to-word-in-result-item item
-                                                                ,text-to-search)))))
-
-(defun projectile-extras--move-to-word-in-result-item (result-item target-word)
-  "Moves the cursor to the specified word in file represented by the specified result item."
-  (let ((file (car (split-string result-item
-                                 " => line ")))
-        (line-number (string-to-number (cadr (split-string result-item
-                                                           " => line ")))))
-    (find-file (expand-file-name file
-                                 (projectile-project-root)))
-    (beginning-of-buffer)
-    (forward-line (1- line-number))
-    (search-forward target-word)
-    (set-mark-command nil)
-    (search-backward target-word)
-    (run-hooks 'projectile-find-file-hook)))
+    (cl-flet* ((move-to-word-in-result-item (result-item target-word)
+                                            (let ((file (car (split-string result-item
+                                                                           " => line ")))
+                                                  (line-number (string-to-number (cadr (split-string result-item
+                                                                                                     " => line ")))))
+                                              (find-file (expand-file-name file
+                                                                           (projectile-project-root)))
+                                              (beginning-of-buffer)
+                                              (forward-line (1- line-number))
+                                              (search-forward target-word)
+                                              (set-mark-command nil)
+                                              (search-backward target-word)
+                                              (run-hooks 'projectile-find-file-hook)))))
+    (projectile-completing-read prompt-text
+                                (seq-reduce #'append
+                                            (mapcar (lambda (file)
+                                                      (with-temp-buffer
+                                                        (insert-file-contents file)
+                                                        (let ((lines (split-string (buffer-string)
+                                                                                   "\n")))
+                                                          (cl-remove-if nil
+                                                                        (mapcar (lambda (line)
+                                                                                  (let ((present-in-linep (string-match-p (regexp-quote text-to-search)
+                                                                                                                          line)))
+                                                                                    (cond (present-in-linep (concat (cadr (split-string file
+                                                                                                                                        (projectile-project-root)))
+                                                                                                                    " => line "
+                                                                                                                    (number-to-string (1+ (cl-position line
+                                                                                                                                                       lines)))))
+                                                                                          (t nil))))
+                                                                                lines)))))
+                                                    files-to-search)
+                                            nil)
+                                :action `(lambda (item)
+                                           (projectile-extras--move-to-word-in-result-item item
+                                                                                           ,text-to-search)))))
 
 (provide 'projectile-extras)
 
