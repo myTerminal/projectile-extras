@@ -80,6 +80,21 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                                                  text-to-search
                                                  arg)))
 
+(defun projectile-extras--move-to-word-in-result-item (result-item target-word)
+  "Moves the cursor to a specified word in the result item"
+  (let ((file (car (split-string result-item
+                                 " => line ")))
+        (line-number (string-to-number (cadr (split-string result-item
+                                                           " => line ")))))
+    (find-file (expand-file-name file
+                                 (projectile-project-root)))
+    (beginning-of-buffer)
+    (forward-line (1- line-number))
+    (search-forward target-word)
+    (set-mark-command nil)
+    (search-backward target-word)
+    (run-hooks 'projectile-find-file-hook)))
+
 (defun projectile-extras--search-string-in-project (prompt-text text-to-search &optional arg)
   "Searches for the specified text in project files and displays result with the specified label."
   (let* ((directory (if arg
@@ -87,19 +102,6 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                       (projectile-project-root)))
          (files-to-search (projectile-files-with-string text-to-search
                                                         directory)))
-    (cl-flet* ((move-to-word-in-result-item (result-item target-word)
-                                            (let ((file (car (split-string result-item
-                                                                           " => line ")))
-                                                  (line-number (string-to-number (cadr (split-string result-item
-                                                                                                     " => line ")))))
-                                              (find-file (expand-file-name file
-                                                                           (projectile-project-root)))
-                                              (beginning-of-buffer)
-                                              (forward-line (1- line-number))
-                                              (search-forward target-word)
-                                              (set-mark-command nil)
-                                              (search-backward target-word)
-                                              (run-hooks 'projectile-find-file-hook)))))
     (projectile-completing-read prompt-text
                                 (seq-reduce #'append
                                             (mapcar (lambda (file)
