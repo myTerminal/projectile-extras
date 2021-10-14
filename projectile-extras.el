@@ -113,8 +113,11 @@ With a prefix argument ARG prompts you for a directory on which to run search in
                                                                         (mapcar (lambda (line)
                                                                                   (let ((present-in-linep (string-match-p (regexp-quote text-to-search)
                                                                                                                           line)))
-                                                                                    (cond (present-in-linep (concat (cadr (split-string file
-                                                                                                                                        (projectile-project-root)))
+                                                                                    (cond (present-in-linep (concat (replace-regexp-in-string (regexp-quote (projectile-project-root))
+                                                                                                                                              ""
+                                                                                                                                              file
+                                                                                                                                              nil
+                                                                                                                                              'literal)
                                                                                                                     " => line "
                                                                                                                     (number-to-string (1+ (cl-position line
                                                                                                                                                        lines)))))
